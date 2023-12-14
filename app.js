@@ -4,7 +4,11 @@ const session = require("express-session");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const dotenv = require('dotenv').config()
-
+const saltRounds = 10; // Number of salt rounds
+const fs = require('fs');
+async function hashPassword(password) {
+    return await bcrypt.hash(password, 10);
+}
 
 const app = express();
 app.set("view engine", "ejs");
@@ -21,6 +25,58 @@ const connection = mysql.createPool({
 
 })
 
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+  
+    try {
+        // Check if the email is already in use
+        connection.query(
+            'SELECT * FROM users WHERE email = ?',
+            [email],
+            async (error, results) => {
+                if (error) {
+                    console.error(error);
+                    res.status(500).send('Error checking email');
+                } else {
+                    if (results.length > 0) {
+                        // Email already in use, deny registration
+                        res.status(400).send('Email already in use' );
+                    } else {
+                        // Hash the password
+                        const hashedPassword = await bcrypt.hash(password, saltRounds);
+                        
+                        // Insert the user into the database
+                        connection.query(
+                            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+                            [username, email, hashedPassword],
+                            (error, results) => {
+                                if (error) {
+                                    console.error(error);
+                                    res.status(500).send('Error registering user');
+                                } else {
+                                    res.status(200).send('User registered successfully');
+                                }
+                            }
+                        );
+                    }
+                }
+            }
+        );
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error registering user');
+    }
+});
+
+  
+  
+
+
+
+
+
+
+
 app.use(
     session({
         secret: "your-secret-key",
@@ -30,8 +86,11 @@ app.use(
 );
 
 app.get("/", (req,res) =>{
-  
-    res.render("index")
+    const data = {
+        title:"home",
+        active:"home"
+    }
+    res.render("index", data)
 })
 
 app.get("/about", (req, res)=>{
@@ -42,7 +101,7 @@ app.get("/contact", (req, res)=>{
     res.render("contact")
 })
 
-app.get("/register", (req, res)=>{
+app.get("//register", (req, res)=>{
     res.render("register")
 })
 
@@ -52,6 +111,10 @@ app.get("/login", (req, res)=>{
 
 app.get("/tenant", (req, res)=>{
     res.render("tenant")
+})
+
+app.get("/landlord", (req, res)=>{
+    res.render("landlord")
 })
 
 

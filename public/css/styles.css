@@ -20,8 +20,11 @@ header {
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 0.5rem;
   margin-right: auto;
+  width: 5rem;
+  height: auto;
+  border-radius: 40px;
 }
 
 .search-input {
@@ -40,6 +43,7 @@ header {
   display: none;
 }
 
+/* Basic styles */
 .nav-links {
   list-style: none;
   display: flex;
@@ -52,6 +56,27 @@ header {
 .nav-links a {
   text-decoration: none;
   color: #fff;
+  position: relative;
+  font-weight: bold;
+}
+
+/* Glowing effect */
+.nav-links a::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -5px;
+  left: 0;
+  background-color: #fff;
+  visibility: hidden;
+  transform: scaleX(0);
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-links a:hover::before {
+  visibility: visible;
+  transform: scaleX(1);
 }
 
 /*Registration Styling */
@@ -102,8 +127,9 @@ form {
   font-weight: bolder;
   font-family: Georgia, "Times New Roman", Times, serif;
 }
+
 .active {
-  background-color: rgb(62, 62, 62);
+  background-color: #347935;
 }
 .user-login {
   font-weight: bolder;
@@ -282,4 +308,23 @@ footer {
 
 .card-info a:hover {
   background-color: #ddd;
+}
+
+/* Styles for the progress bar container */
+
+.progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 8px; /* Adjust the height of the progress bar */
+  background-color: #f0f0f0; /* Background color of the progress container */
+}
+
+/* Styles for the progress bar */
+.progress-bar {
+  height: 100%;
+  background-color: #007bff; /* Color of the progress bar */
+  width: 0; /* Initially, the progress bar is empty */
+  transition: width 0.2s ease-out; /* Animation for the progress bar */
 }
