@@ -6,6 +6,9 @@ const bcrypt = require("bcrypt");
 const dotenv = require('dotenv').config()
 const saltRounds = 10; // Number of salt rounds
 const fs = require('fs');
+const connection = require('./db');
+const bodyParser = require('body-parser');
+
 async function hashPassword(password) {
     return await bcrypt.hash(password, 10);
 }
@@ -14,59 +17,48 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 const port = process.env.PORT || 3000;
 
-const connection = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    database: "accommodation",
-    password: "Zondiwe@123"
-
-})
-
 app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
-  
     try {
-        // Check if the email is already in use
+        const { username, email, password } = req.body;
+
+        // Log the received data
+        console.log('Received:', username, email, password);
+
+        // Ensure all data is available before proceeding
+        if (!username || !email || !password) {
+            return res.status(400).send('Incomplete data');
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Insert the user into the database
         connection.query(
-            'SELECT * FROM users WHERE email = ?',
-            [email],
-            async (error, results) => {
+            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+            [username, email, hashedPassword],
+            (error, results) => {
                 if (error) {
                     console.error(error);
-                    res.status(500).send('Error checking email');
+                    res.status(500).send('Error registering user');
                 } else {
-                    if (results.length > 0) {
-                        // Email already in use, deny registration
-                        res.status(400).send('Email already in use' );
-                    } else {
-                        // Hash the password
-                        const hashedPassword = await bcrypt.hash(password, saltRounds);
-                        
-                        // Insert the user into the database
-                        connection.query(
-                            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-                            [username, email, hashedPassword],
-                            (error, results) => {
-                                if (error) {
-                                    console.error(error);
-                                    res.status(500).send('Error registering user');
-                                } else {
-                                    res.status(200).send('User registered successfully');
-                                }
-                            }
-                        );
-                    }
+                    res.render("login")
                 }
+                
             }
         );
+        
     } catch (error) {
         console.error(error);
         res.status(500).send('Error registering user');
-    }
+    }     
 });
+
+
 
   
   
@@ -101,7 +93,7 @@ app.get("/contact", (req, res)=>{
     res.render("contact")
 })
 
-app.get("//register", (req, res)=>{
+app.get("/register", (req, res)=>{
     res.render("register")
 })
 

@@ -5,7 +5,9 @@
     <!-- Header -->
     <%- include("./partials/header")%> <%- include("./partials/progress-bar") %>
     <section class="register-page">
-      <form action="/register" method="POST">
+      <!-- Your HTML content -->
+
+      <form action="/register" method="POST" id="registerForm">
         <h1 class="user-login">Sign Up</h1>
         <br />
         <label for="username" class="label">Username</label><br />
@@ -17,6 +19,7 @@
           size="50"
           class="input"
           required
+          autocomplete="username"
         /><br />
         <label for="email" class="label">Email</label><br />
         <input
@@ -27,14 +30,9 @@
           size="50"
           class="input"
           required
+          autocomplete="email"
         /><br />
-        <p
-          id="emailExistsMessage"
-          class="error-message"
-          style="display: none; color: red"
-        >
-          Email already in use
-        </p>
+
         <label for="password" class="label">Password</label><br />
         <input
           type="password"
@@ -44,11 +42,14 @@
           size="50"
           class="input"
           required
+          autocomplete="password"
         /><br />
         <p id="errorMessage" hidden></p>
+
         <button type="submit" id="submit" class="button">Sign Up</button>
         <p>Already Have An Account? <a class="renew" href="/login">Login</a></p>
       </form>
+      <script src="/js/index.js"></script>
     </section>
     <%- include("./partials/footer") %>
   </body>
